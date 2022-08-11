@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Golang test CRUD Project</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css"
+    integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous" />
+
+  <style>
+    #main-body {
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: cover;
+      height: 100vh;
+    }
+
+    .center-container {
+      padding-top: 2rem;
+    }
+
+    .glass-effect {
+      /* From https://css.glass */
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 16px;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(5.9px);
+      -webkit-backdrop-filter: blur(5.9px);
+      border: 1px solid rgba(255, 255, 255, 0.31);
+    }
+  </style>
+</head>
+
+<body id="main-body">
+  <div class="container center-container">
+    <div class="row">
+      <div class="col-sm glass-effect me-3 p-4">
+        <hr />
+        <h3>Daftar Tugas</h3>
+        <hr />
+        <div id="tasks">
+          <ul></ul>
+        </div>
+      </div>
+      <div class="col-sm glass-effect me-3 p-4">
+        <hr />
+        <h3>Tambah Tugas</h3>
+        <hr />
+        <form>
+          <div class="form-group">
+            <label for="exampleInputEmail1">Name</label>
+            <input name="name" type="text" class="form-control" id="namePost" aria-describedby="nameHelp"
+              placeholder="Enter name" />
+            <br />
+            <label for="exampleInputEmail1">Pic</label>
+            <input type="text" name="pic" class="form-control" id="picPost" aria-describedby="picHelp"
+              placeholder="Enter pic" />
+            <br />
+            <label for="exampleInputEmail1">Deadline</label>
+            <input type="text" name="deadline" class="form-control" id="deadlinePost" aria-describedby="deadlineHelp"
+              placeholder="Enter deadline" />
+            <br />
+            <label for="exampleInputEmail1">Status</label>
+            <input type="number" name="status" class="form-control" id="statusPost" aria-describedby="statusHelp"
+              placeholder="Enter status" />
+          </div>
+          <br />
+          <button type="submit" class="btn btn-primary" onClick="postTask()">Submit</button>
+        </form>
+      </div>
+      <div class="col-sm glass-effect me-3 p-4">
+        <hr />
+        <h3>Edit Tugas</h3>
+        <hr />
+        <form action="http://localhost:8000/tasks/edit" method="post">
+          <div class="form-group">
+            <label for="exampleInputEmail1">ID</label>
+            <input type="text" name="id" class="form-control" id="exampleInputname1" aria-describedby="nameHelp"
+              placeholder="Enter id" />
+            <br />
+            <div class="form-group">
+              <label for="exampleInputEmail1">Name</label>
+              <input type="text" name="name" class="form-control" id="exampleInputname1" aria-describedby="nameHelp"
+                placeholder="Enter name" />
+              <br />
+              <label for="exampleInputEmail1">Pic</label>
+              <input type="text" name="pic" class="form-control" id="exampleInputpic1" aria-describedby="picHelp"
+                placeholder="Enter pic" />
+              <br />
+              <label for="exampleInputEmail1">Deadline</label>
+              <input type="text" name="deadline" class="form-control" id="exampleInputdeadline1"
+                aria-describedby="deadlineHelp" placeholder="Enter deadline" />
+              <br />
+              <label for="exampleInputEmail1">Status</label>
+              <input type="number" name="status" class="form-control" id="exampleInputstatus1"
+                aria-describedby="statusHelp" placeholder="Enter status" />
+            </div>
+            <br />
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="container"></div>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script>
+    const listGradientBG = [
+      "linear-gradient(120deg, #89f7fe 0%, #66a6ff 100%)",
+      "linear-gradient(to top, #5ee7df 0%, #b490ca 100%)",
+      "linear-gradient(to top, #96fbc4 0%, #f9f586 100%)",
+      "linear-gradient(to top, #a18cd1 0%, #fbc2eb 100%)",
+      "linear-gradient(120deg, #f6d365 0%, #fda085 100%)",
+      "linear-gradient(120deg, #d4fc79 0%, #96e6a1 100%)",
+      "linear-gradient(to top, #cfd9df 0%, #e2ebf0 100%)",
+      "linear-gradient(to right, #4facfe 0%, #00f2fe 100%)",
+      "linear-gradient(to top, #30cfd0 0%, #330867 100%)",
+      "linear-gradient(to top, #a8edea 0%, #fed6e3 100%)",
+    ];
+    const randomNumber = Math.floor(Math.random() * (9 - 0) + 0);
+    document.getElementById("main-body").style.backgroundImage = listGradientBG[randomNumber];
+
+    $.get("http://localhost:8000/tasks", function (data, status) {
+      for (let i = 0; i < data.items.length; i++) {
+        $("#tasks ul").append(
+          `<li>ID : ${data.items[i].id} <br /> NAME : ${data.items[i].name} <br /> PIC : ${data.items[i].pic} DEADLINE : ${data.items[i].deadline} <br /> STATUS : ${data.items[i].status}<br /><a href="http://localhost:8000/tasks/${data.items[i].id}/delete">Hapus</a></li><br />`
+        );
+      }
+    });
+
+    function postTask() {
+      const data = {
+        "name": $('#namePost').val(),
+        "pic": $('#picPost').val(),
+        "Deadline": $('#deadlinePost').val(),
+        "status": $('#statusPost').val()
+      }
+      $.ajax({
+        type: "POST",
+        url: 'http://localhost:8000/tasks',
+        data: data
+      });
+    }
+  </script>
+</body>
+
+</html>
